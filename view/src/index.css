@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme {
+    --animate-fade-in: fade-in 0.2s ease-out forwards;
+    --animate-scale-up: scale-up 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+    @keyframes fade-in {
+        0% {
+            opacity: 0;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @keyframes scale-up {
+        0% {
+            transform: scale(0.95);
+            opacity: 0;
+        }
+
+        105% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+}
+
+@keyframes spin-slow {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin-slow {
+    animation: spin-slow 35s linear infinite;
+}
+
+.animate-spin-slow-reverse {
+    animation: spin-slow 45s linear infinite reverse;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20%,
+    60% {
+        transform: translateX(-6px);
+    }
+
+    40%,
+    80% {
+        transform: translateX(6px);
+    }
+}
+
+.animate-shake {
+    animation: shake 0.5s ease-in-out;
+}
