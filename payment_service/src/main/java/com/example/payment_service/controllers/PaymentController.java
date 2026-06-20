@@ -1,21 +1,15 @@
 package com.example.payment_service.controllers;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.payment_service.dtos.GenericResponse;
 import com.example.payment_service.dtos.req.CreatePaymentRequest;
 import com.example.payment_service.services.PaymentService;
-
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
-@RequestMapping("/payment")
+@RequestMapping("/api/payment")
 @RequiredArgsConstructor
 public class PaymentController {
     private final PaymentService paymentService;
@@ -32,7 +26,7 @@ public class PaymentController {
     }
 
     @PostMapping("/pay-payment")
-    public ResponseEntity<?> payPayment(Long id) {
+    public ResponseEntity<?> payPayment(@RequestParam Long id) { // Tambah @RequestParam
         try {
             return ResponseEntity.ok()
                     .body(GenericResponse.succes(paymentService.payPayment(id), "Succesfully pay payment"));
@@ -42,7 +36,7 @@ public class PaymentController {
     }
 
     @PostMapping("/cancel-payment")
-    public ResponseEntity<?> cancelPayment(Long id) {
+    public ResponseEntity<?> cancelPayment(@RequestParam Long id) { // Tambah @RequestParam
         try {
             return ResponseEntity.ok()
                     .body(GenericResponse.succes(paymentService.cancelPayment(id), "Succesfully cancel payment"));
@@ -80,5 +74,4 @@ public class PaymentController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
 }

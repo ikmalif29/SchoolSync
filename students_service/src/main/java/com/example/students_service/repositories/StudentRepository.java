@@ -11,6 +11,12 @@ import com.example.students_service.models.Student;
 public interface StudentRepository extends JpaRepository<Student, Long> {
     boolean existsByNis(String nis);
 
+    boolean existsByEmail(String email);
+
+    Optional<Student> findByEmail(String email);
+
+    boolean existsByEmailAndIdNot(String email, Long id);
+
     Optional<Student> findByNis(String nis);
 
     boolean existsByNisAndIdNot(

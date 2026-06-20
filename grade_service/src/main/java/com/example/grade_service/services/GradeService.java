@@ -21,4 +21,6 @@ public interface GradeService {
     GradeResponse updateGrade(Long id, CreateGradeRequest request) throws Exception;
 
     void deleteGrade(Long id) throws Exception;
+
+    byte[] generateGradeExcel(String email) throws Exception;
 }

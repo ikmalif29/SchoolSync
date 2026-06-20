@@ -11,4 +11,5 @@ public interface TeacherService {
     TeacherResponse updateTeacher(Long id, CreateTeacherRequest request) throws Exception;
     TeacherResponse getTeacherById(Long id) throws Exception;
     void deleteTeacher(Long id) throws Exception;
+    TeacherResponse getTeacherByEmail(String email) throws Exception;
 }

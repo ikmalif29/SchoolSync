@@ -14,17 +14,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CreatePaymentRequest {
-
     private Long studentId;
-
     private String studentEmail;
-
     private Double amount;
-
     private String description;
-
     private PaymentType paymentType;
-
     private LocalDate dueDate;
 
+    // Field Baru Terintegrasi
+    private Integer targetClassLevel;
+    private String academicYear;
+    private Integer periodMonth;
 }

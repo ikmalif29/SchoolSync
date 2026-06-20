@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.example.payment_service.dtos.req.CreatePaymentRequest;
 import com.example.payment_service.dtos.res.PaymentResponse;
 import com.example.payment_service.enums.PaymentStatus;
+import com.example.payment_service.enums.PaymentType;
 import com.example.payment_service.models.Payment;
 import com.example.payment_service.repositories.PaymentRepository;
 import com.example.payment_service.services.EmailService;
@@ -25,20 +26,45 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentResponse createPayment(CreatePaymentRequest request) throws Exception {
-        System.out.println("studentId = " + request.getStudentId());
-        System.out.println("studentEmail = " + request.getStudentEmail());
-        System.out.println("amount = " + request.getAmount());
-        System.out.println("description = " + request.getDescription());
-        System.out.println("paymentType = " + request.getPaymentType());
-        System.out.println("dueDate = " + request.getDueDate());
-
+        
+        // 1. Validasi awal field mandatori
         if (request.getStudentId() == null ||
                 request.getAmount() == null ||
                 request.getPaymentType() == null ||
                 request.getDueDate() == null) {
-
             throw new Exception("Semua field wajib diisi");
         }
+
+        // Ambil semua riwayat pembayaran siswa terlebih dahulu
+        List<Payment> existingPayments = paymentRepository.findByStudentId(request.getStudentId());
+
+        // 2. --- PERBAIKAN VALIDASI CEK TAGIHAN DUPLIKAT ---
+        if (request.getPaymentType() == PaymentType.SPP_BULANAN) {
+            // Validasi khusus SPP Bulanan: Cek kesamaan Type, Academic Year, dan Period Month
+            boolean isAlreadyExist = existingPayments.stream().anyMatch(p -> 
+                p.getPaymentType() == PaymentType.SPP_BULANAN &&
+                request.getAcademicYear().equals(p.getAcademicYear()) &&
+                request.getPeriodMonth() != null && request.getPeriodMonth().equals(p.getPeriodMonth()) &&
+                (p.getPaymentStatus() == PaymentStatus.PAID || p.getPaymentStatus() == PaymentStatus.PENDING)
+            );
+
+            if (isAlreadyExist) {
+                throw new Exception("Gagal membuat tagihan: Siswa ini sudah memiliki tagihan SPP aktif atau sudah lunas untuk periode bulan tersebut.");
+            }
+        } else {
+            // PERBAIKAN UTAMA: Validasi tagihan non-SPP (Seragam, Biaya Ujian, dll)
+            // Memastikan p.getPaymentType() COCOK dengan request.getPaymentType() agar tidak saling bertabrakan
+            boolean isAlreadyExist = existingPayments.stream().anyMatch(p -> 
+                p.getPaymentType() == request.getPaymentType() &&
+                request.getAcademicYear().equals(p.getAcademicYear()) &&
+                (p.getPaymentStatus() == PaymentStatus.PAID || p.getPaymentStatus() == PaymentStatus.PENDING)
+            );
+
+            if (isAlreadyExist) {
+                throw new Exception("Gagal membuat tagihan: Tagihan jenis " + request.getPaymentType() + " sudah ada atau sudah dibayar untuk tahun ajaran ini.");
+            }
+        }
+        // ---------------------------------------------------
 
         Payment payment = requestPaymentToPayment(request);
 
@@ -48,27 +74,25 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment savedPayment = paymentRepository.save(payment);
 
-        if (request.getStudentEmail() != null &&
-                !request.getStudentEmail().isBlank()) {
-
+        if (request.getStudentEmail() != null && !request.getStudentEmail().isBlank()) {
             emailService.sendEmail(
                     request.getStudentEmail(),
                     "Tagihan Pembayaran Baru",
                     """
-                            Halo,
+                    Halo,
 
-                            Anda memiliki tagihan baru.
+                    Anda memiliki tagihan baru.
 
-                            Nominal : Rp %.0f
-                            Deskripsi : %s
-                            Jatuh Tempo : %s
+                    Nominal : Rp %.0f
+                    Deskripsi : %s
+                    Jatuh Tempo : %s
 
-                            Silakan segera melakukan pembayaran.
-                            """
-                            .formatted(
-                                    savedPayment.getAmount(),
-                                    savedPayment.getDescription(),
-                                    savedPayment.getDueDate()));
+                    Silakan segera melakukan pembayaran.
+                    """
+                    .formatted(
+                            savedPayment.getAmount(),
+                            savedPayment.getDescription(),
+                            savedPayment.getDueDate()));
         }
 
         return paymentToPaymentResponseDto(savedPayment);
@@ -76,7 +100,6 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentResponse payPayment(Long id) throws Exception {
-
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new Exception("Payment tidak ditemukan"));
 
@@ -85,7 +108,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         payment.setPaymentStatus(PaymentStatus.PAID);
-        payment.setPaymentDate(LocalDate.now());
+        payment.setPaymentDate(LocalDate.now()); 
         payment.setUpdatedAt(LocalDateTime.now());
 
         Payment savedPayment = paymentRepository.save(payment);
@@ -95,7 +118,6 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentResponse cancelPayment(Long id) throws Exception {
-
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new Exception("Payment tidak ditemukan"));
 
@@ -113,7 +135,6 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<PaymentResponse> getAllPayments() throws Exception {
-
         List<Payment> payments = paymentRepository.findAll();
 
         if (payments.isEmpty()) {
@@ -127,7 +148,6 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentResponse getPaymentById(Long id) throws Exception {
-
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new Exception("Payment tidak ditemukan"));
 
@@ -136,7 +156,6 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<PaymentResponse> getPaymentByStudentId(Long studentId) throws Exception {
-
         List<Payment> payments = paymentRepository.findByStudentId(studentId);
 
         if (payments.isEmpty()) {
@@ -158,6 +177,9 @@ public class PaymentServiceImpl implements PaymentService {
                 .paymentStatus(payment.getPaymentStatus())
                 .dueDate(payment.getDueDate())
                 .paymentDate(payment.getPaymentDate())
+                .targetClassLevel(payment.getTargetClassLevel())
+                .academicYear(payment.getAcademicYear())
+                .periodMonth(payment.getPeriodMonth())
                 .build();
     }
 
@@ -168,6 +190,9 @@ public class PaymentServiceImpl implements PaymentService {
                 .description(request.getDescription())
                 .paymentType(request.getPaymentType())
                 .dueDate(request.getDueDate())
+                .targetClassLevel(request.getTargetClassLevel())
+                .academicYear(request.getAcademicYear())
+                .periodMonth(request.getPaymentType() == PaymentType.SPP_BULANAN ? request.getPeriodMonth() : null)
                 .build();
     }
 }

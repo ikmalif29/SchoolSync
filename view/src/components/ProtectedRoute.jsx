@@ -1,22 +1,26 @@
 import { Navigate, Outlet } from "react-router-dom";
 import Cookies from "js-cookie";
 
-const ProtectedRoute = ({ allowedRole }) => {
+const ProtectedRoute = ({ allowedRoles }) => {
     const role = Cookies.get("role");
 
     console.log("ProtectedRoute role:", role);
-    console.log("Allowed role:", allowedRole);
+    console.log("Allowed roles:", allowedRoles);
 
-    // belum login
+    // 1. Jika cookie role tidak ditemukan (belum login)
     if (!role) {
         return <Navigate to="/" replace />;
     }
 
-    // role tidak sesuai
-    if (role !== allowedRole) {
+    // 2. Cek apakah role user saat ini terdaftar di dalam array allowedRoles
+    // .map(r => r.toUpperCase()) memastikan semua string berbentuk huruf kapital agar aman
+    const hasAccess = allowedRoles.map(r => r.toUpperCase()).includes(role.toUpperCase());
+
+    if (!hasAccess) {
         return <Navigate to="/access-denied" replace />;
     }
 
+    // 3. Jika aman, lolos ke halaman yang dituju
     return <Outlet />;
 };
 

@@ -13,6 +13,17 @@ import StudentManagement from "./pages/admin/StudentsManagemenet.jsx";
 import TeacherManagement from "./pages/admin/TeacherManagement.jsx";
 import SubjectManagement from "./pages/admin/SubjectManagement.jsx";
 import GradeManagement from "./pages/admin/GradeManagement.jsx";
+import AdminPayments from "./pages/admin/PaymentManagement.jsx";
+import ScheduleManagement from "./pages/admin/ScheduleManagement.jsx";
+import TeacherDashboard from "./pages/teacher/TeacherDashboard.jsx";
+import TeacherProfile from "./pages/teacher/TeacherProfile.jsx";
+import DashboardLayout from "./components/teacher/TeacherLayout.jsx";
+import TeacherSchedule from "./pages/teacher/TeacherSchedule.jsx";
+import StudentLandingPage from "./pages/student/StudentLandingPage.jsx";
+import StudentLayout from "./components/student/StudentLayout.jsx";
+import StudentProfile from "./pages/student/StudentProfile.jsx";
+import StudentSchedule from "./pages/student/StudentSchedule.jsx";
+import StudentReport from "./pages/student/StudentReport.jsx";
 
 const router = createBrowserRouter([
   {
@@ -21,51 +32,115 @@ const router = createBrowserRouter([
     children: [
       /* AUTH */
       {
-        path: "/",
+        index: true, // Menggunakan index: true sebagai halaman utama/akar "/"
         element: <Login />,
       },
 
-      /* ADMIN */
+      /* =========================================================
+         1. AREA KHUSUS ADMIN
+         ========================================================= */
       {
-        path: "/admin",
-        element: <ProtectedRoute allowedRole="ADMIN" />,
+        path: "admin", // Menggunakan jalur relatif (tanpa '/')
+        element: <ProtectedRoute allowedRoles={["ADMIN"]} />,
         children: [
           {
-            path: "/admin/dashboard",
+            path: "dashboard", // Menjadi: /admin/dashboard
             element: <DashboardAdmin />,
           },
           {
-            path: "/admin/students",
+            path: "students", // Menjadi: /admin/students
             element: <StudentManagement />,
           },
           {
-            path: "/admin/teachers",
+            path: "teachers", // Menjadi: /admin/teachers
             element: <TeacherManagement />,
           },
           {
-            path: "/admin/subjects",
+            path: "subjects", // Menjadi: /admin/subjects
             element: <SubjectManagement />
           },
           {
-            path: "/admin/grades",
+            path: "grades", // Menjadi: /admin/grades
             element: <GradeManagement />,
           },
           {
-            path: "/admin/payments",
-            element: <h1>Payments</h1>,
+            path: "payments", // Menjadi: /admin/payments
+            element: <AdminPayments />,
           },
           {
-            path: "/admin/users",
-            element: <h1>Users</h1>,
+            path: "schedules", // Menjadi: /admin/schedules
+            element: <ScheduleManagement />,
           },
-          {
-          }
         ],
+      },
+
+      /* =========================================================
+         2. CONTOH AREA GURU (TEACHER) & MAHASISWA/SISWA (STUDENT)
+         Nantinya jika kamu membuat halaman khusus Teacher atau Student,
+         kamu tinggal menambahkan grup baru di bawah ini:
+         ========================================================= */
+      {
+        path: "teacher",
+        element: <ProtectedRoute allowedRoles={["TEACHER"]} />,
+        children: [
+          {
+            // Semua halaman di dalam sini otomatis dibungkus Header & Footer
+            element: <DashboardLayout />,
+            children: [
+              {
+                path: "dashboard", // Menjadi: /teacher/dashboard
+                element: <TeacherDashboard />
+              },
+              {
+                path: "profile", // Menjadi: /teacher/profile
+                element: <TeacherProfile />
+              },
+              {
+                path: "schedules", // Menjadi: /teacher/schedules
+                element: <TeacherSchedule />
+              }
+
+            ]
+          }
+        ]
+      },
+
+
+      {
+        path: "student",
+        element: <ProtectedRoute allowedRoles={["STUDENT"]} />,
+        children: [
+          {
+            element: <StudentLayout />,
+            children: [
+              { 
+                path: "dashboard", 
+                element: <StudentLandingPage />
+              },
+              {
+                path: "profile",
+                element: <StudentProfile />
+              },
+              {
+                path: "schedules",
+                element: <StudentSchedule />
+              },
+              {
+                path: "raport",
+                element: <StudentReport />
+              }
+            ]
+          }
+        ]
       }
 
     ],
-    
   },
+  /* Rute Global untuk Halaman Ditolak */
+  {
+    path: "/access-denied",
+    element: <div className="p-8 text-center font-bold text-rose-600">403 - Access Denied</div>
+  }
 ]);
 
 createRoot(document.getElementById("root")).render(

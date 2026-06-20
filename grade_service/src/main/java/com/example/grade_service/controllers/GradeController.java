@@ -10,11 +10,13 @@ import com.example.grade_service.services.GradeService;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 
@@ -35,7 +37,8 @@ public class GradeController {
     }
 
     @GetMapping("/get-all-grades")
-    public ResponseEntity<?> getAllGrades(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10") Integer size) throws Exception {
+    public ResponseEntity<?> getAllGrades(@RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) throws Exception {
         try {
             return ResponseEntity.ok()
                     .body(GenericResponse.succes(gradeService.getAllGrades(page, size), "Grades fetched Successfully"));
@@ -89,4 +92,22 @@ public class GradeController {
         }
     }
 
+    @GetMapping("/download/report")
+    public ResponseEntity<?> downloadExcelReport(@RequestParam String email) {
+        try {
+            byte[] excelContent = gradeService.generateGradeExcel(email);
+            String fileName = "Rapor_Siswa_" + email + ".xlsx";
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=" + fileName)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(excelContent);
+        } catch (Exception e) {
+            e.printStackTrace(); // Cetak di console IDE
+
+            // MAKSIMALKAN RESPONSE: Kembalikan teks error murni agar terbaca di Swagger!
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("Penyebab Error: " + e.getMessage() + " | Type: " + e.getClass().getName());
+        }
+    }
 }

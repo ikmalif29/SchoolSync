@@ -66,3 +66,49 @@
 .animate-shake {
     animation: shake 0.5s ease-in-out;
 }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleUp {
+    from {
+        transform: scale(0.96);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.25s ease-out forwards;
+}
+
+.animate-scale-up {
+    animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-in-right {
+    animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

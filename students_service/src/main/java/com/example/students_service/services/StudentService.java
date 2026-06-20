@@ -4,6 +4,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.students_service.dtos.req.CreateStudentRequest;
 import com.example.students_service.dtos.res.PaginationResponse;
+import com.example.students_service.dtos.res.StudentDetailResponse;
 import com.example.students_service.dtos.res.StudentResponse;
 
 public interface StudentService {
@@ -13,6 +14,8 @@ public interface StudentService {
     StudentResponse updateStudent(Long id, CreateStudentRequest request) throws Exception;
     void deleteStudent(Long id) throws Exception;
     StudentResponse getStudentById(Long id) throws Exception;
+    StudentDetailResponse getStudentDetailById(Long id) throws Exception;
+    StudentDetailResponse getStudentByEmail(String email) throws Exception;
     PaginationResponse<StudentResponse> getAllStudent(
         Integer page,
         Integer size) throws Exception;

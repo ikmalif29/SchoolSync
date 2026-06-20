@@ -63,7 +63,7 @@ public class TeacherContoller {
     }
 
     @PutMapping("/update-teacher/{id}")
-    public ResponseEntity<?> updateTeacher(@PathVariable Long id, CreateTeacherRequest request) {
+    public ResponseEntity<?> updateTeacher(@PathVariable Long id,@RequestBody CreateTeacherRequest request) {
         try {
             return ResponseEntity.ok(GenericResponse.succes(teacherService.updateTeacher(id, request), "Success"));
         } catch (Exception e) {
@@ -81,4 +81,12 @@ public class TeacherContoller {
         }
     }
 
+    @GetMapping("/get-teacher-by-email/{email}")
+    public ResponseEntity<?> getTeacherByEmail(@PathVariable String email) {
+        try {
+            return ResponseEntity.ok(GenericResponse.succes(teacherService.getTeacherByEmail(email), "Success"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }     
 }

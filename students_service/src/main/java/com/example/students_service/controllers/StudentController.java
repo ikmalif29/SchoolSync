@@ -1,5 +1,6 @@
 package com.example.students_service.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.students_service.dtos.GenericResponse;
 import com.example.students_service.dtos.req.CreateStudentRequest;
+import com.example.students_service.dtos.res.StudentDetailResponse;
 import com.example.students_service.services.StudentService;
 
 import lombok.RequiredArgsConstructor;
@@ -48,10 +50,8 @@ public class StudentController {
     @GetMapping("/get-student-by-id/{id}")
     public ResponseEntity<?> getStudentById(@PathVariable Long id) {
         try {
-            // Ganti getStudentById(id) menjadi studentService.getStudentById(id)
-            return ResponseEntity.ok(GenericResponse.succes(studentService.getStudentById(id), "Success"));
+            return ResponseEntity.ok(GenericResponse.succes(studentService.getStudentDetailById(id), "Success"));
         } catch (Exception e) {
-            // Sekalian dibungkus GenericResponse agar return error-nya tetap berformat JSON
             return ResponseEntity.badRequest().body(GenericResponse.error(e.getMessage()));
         }
     }
@@ -102,6 +102,18 @@ public class StudentController {
                     GenericResponse.succes(studentService.updateStudent(id, request), "Student updated successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> getStudentByEmail(@RequestParam String email) {
+        try {
+            // Mengubah penampung menjadi StudentDetailResponse
+            StudentDetailResponse response = studentService.getStudentByEmail(email);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
         }
     }
 }

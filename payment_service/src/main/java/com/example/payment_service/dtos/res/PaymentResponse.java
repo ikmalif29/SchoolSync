@@ -17,18 +17,16 @@ import lombok.NoArgsConstructor;
 public class PaymentResponse {
 
     private Long id;
-
     private Long studentId;
-
     private Double amount;
-
     private String description;
-
     private PaymentType paymentType;
-
     private PaymentStatus paymentStatus;
-
     private LocalDate dueDate;
-
     private LocalDate paymentDate;
+
+    // Field Baru Terintegrasi
+    private Integer targetClassLevel;
+    private String academicYear;
+    private Integer periodMonth;
 }
