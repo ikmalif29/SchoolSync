@@ -81,6 +81,17 @@ public class GradeController {
 
     }
 
+    @GetMapping("/get-grade-by-teacher-id/{teacherId}")
+    public ResponseEntity<?> getGradeByTeacherId(@PathVariable Long teacherId) {
+        try {
+            return ResponseEntity.ok()
+                    .body(GenericResponse.succes(gradeService.getGradeByTeacherId(teacherId),
+                            "Grades fetched Successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @DeleteMapping("/delete-grade/{id}")
     public ResponseEntity<?> deleteGrade(@PathVariable String id) {
         try {

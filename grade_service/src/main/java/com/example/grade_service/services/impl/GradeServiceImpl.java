@@ -2,6 +2,7 @@ package com.example.grade_service.services.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -21,6 +22,7 @@ import com.example.grade_service.dtos.res.teacher.TeacherResponse;
 import com.example.grade_service.models.Grade;
 import com.example.grade_service.repositories.GradeRepository;
 import com.example.grade_service.services.GradeService;
+
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -63,9 +65,12 @@ public class GradeServiceImpl implements GradeService {
         TeacherResponse teacher = teacherClient.getTeacher(request.getTeacherId());
         SubjectResponse subject = subjectClient.getSubject(request.getSubjectId());
 
-        if (student == null) throw new Exception("Student tidak ditemukan");
-        if (teacher == null) throw new Exception("Teacher tidak ditemukan");
-        if (subject == null) throw new Exception("Subject tidak ditemukan");
+        if (student == null)
+            throw new Exception("Student tidak ditemukan");
+        if (teacher == null)
+            throw new Exception("Teacher tidak ditemukan");
+        if (subject == null)
+            throw new Exception("Subject tidak ditemukan");
 
         Grade grade = requestGradeToGrade(request);
 
@@ -119,6 +124,17 @@ public class GradeServiceImpl implements GradeService {
     }
 
     @Override
+    public List<GradeResponse> getGradeByTeacherId(Long teacherId) throws Exception {
+        // Mencari list data nilai berdasarkan ID Guru ke repository
+        List<Grade> grades = gradeRepository.findByTeacherId(teacherId);
+
+        // Mapping dari entity Grade ke GradeResponse DTO
+        return grades.stream()
+                .map(this::gradeToResponseGradeDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public GradeResponse updateGrade(Long id, CreateGradeRequest request) throws Exception {
         Grade grade = gradeRepository.findById(id)
                 .orElseThrow(() -> new Exception("Data tidak ditemukan"));
@@ -168,10 +184,14 @@ public class GradeServiceImpl implements GradeService {
     }
 
     private String calculateGradeLetter(Double finalScore) {
-        if (finalScore >= 90) return "A";
-        if (finalScore >= 80) return "B";
-        if (finalScore >= 70) return "C";
-        if (finalScore >= 60) return "D";
+        if (finalScore >= 90)
+            return "A";
+        if (finalScore >= 80)
+            return "B";
+        if (finalScore >= 70)
+            return "C";
+        if (finalScore >= 60)
+            return "D";
         return "E";
     }
 
@@ -229,7 +249,7 @@ public class GradeServiceImpl implements GradeService {
 
             // --- TABLE HEADERS ---
             Row headerRow = sheet.createRow(5);
-            String[] columns = {"Mata Pelajaran", "Nilai Tugas", "UTS", "UAS", "Nilai Akhir", "Huruf"};
+            String[] columns = { "Mata Pelajaran", "Nilai Tugas", "UTS", "UAS", "Nilai Akhir", "Huruf" };
             for (int i = 0; i < columns.length; i++) {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(columns[i]);
@@ -274,7 +294,8 @@ public class GradeServiceImpl implements GradeService {
                 Row emptyRow = sheet.createRow(currentRowIndex++);
                 Cell emptyCell = emptyRow.createCell(0);
                 emptyCell.setCellValue("Belum ada data komponen nilai untuk siswa ini.");
-                sheet.addMergedRegion(new org.apache.poi.ss.util.CellRangeAddress(currentRowIndex - 1, currentRowIndex - 1, 0, 5));
+                sheet.addMergedRegion(
+                        new org.apache.poi.ss.util.CellRangeAddress(currentRowIndex - 1, currentRowIndex - 1, 0, 5));
             }
 
             // --- SUMMARY ROW (RATA-RATA) ---
@@ -300,7 +321,8 @@ public class GradeServiceImpl implements GradeService {
         }
     }
 
-    // METHOD REFACTOR: Menggunakan proteksi try-catch terisolasi pada network call HTTP client
+    // METHOD REFACTOR: Menggunakan proteksi try-catch terisolasi pada network call
+    // HTTP client
     private GradeResponse gradeToResponseGradeDto(Grade grade) {
         StudentResponse student = null;
         try {

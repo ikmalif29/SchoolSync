@@ -24,6 +24,7 @@ import StudentLayout from "./components/student/StudentLayout.jsx";
 import StudentProfile from "./pages/student/StudentProfile.jsx";
 import StudentSchedule from "./pages/student/StudentSchedule.jsx";
 import StudentReport from "./pages/student/StudentReport.jsx";
+import TeacherGradeManagement from "./pages/teacher/TeacherGradeManagement.jsx";
 
 const router = createBrowserRouter([
   {
@@ -98,8 +99,11 @@ const router = createBrowserRouter([
               {
                 path: "schedules", // Menjadi: /teacher/schedules
                 element: <TeacherSchedule />
+              },
+              {
+                path: "grades", // Menjadi: /teacher/grades
+                element: <TeacherGradeManagement />
               }
-
             ]
           }
         ]

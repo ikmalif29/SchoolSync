@@ -11,6 +11,8 @@ import com.example.grade_service.models.Grade;
 public interface GradeRepository extends JpaRepository<Grade, Long> {
     List<Grade> findByStudentId(Long studentId);
 
+    List<Grade> findByTeacherId(Long teacherId);
+
     boolean existsByStudentIdAndSubjectId(
             Long studentId,
             Long subjectId);

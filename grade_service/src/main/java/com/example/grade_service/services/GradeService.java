@@ -18,6 +18,8 @@ public interface GradeService {
 
     List<GradeResponse> getGradeByStudentId(Long studentId) throws Exception;
 
+    List<GradeResponse> getGradeByTeacherId(Long teacherId) throws Exception;
+
     GradeResponse updateGrade(Long id, CreateGradeRequest request) throws Exception;
 
     void deleteGrade(Long id) throws Exception;

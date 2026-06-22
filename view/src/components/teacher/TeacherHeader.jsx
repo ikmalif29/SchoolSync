@@ -17,8 +17,9 @@ const TeacherHeader = () => {
 
   const navigation = [
     { name: "Dashboard", path: "/teacher/dashboard", icon: LayoutDashboard },
-    { name: "Jadwal", path: "/teacher/schedules", icon: Calendar },
-    { name: "Profil Saya", path: "/teacher/profile", icon: User },
+    { name: "Schedule", path: "/teacher/schedules", icon: Calendar },
+    { name: "Grades", path: "/teacher/grades", icon: Bell },
+    { name: "Profile", path: "/teacher/profile", icon: User },
   ];
 
   const handleLogout = () => {
